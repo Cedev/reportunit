@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
+using System.Web;
 
 namespace ReportUnit.Parser
 {
@@ -199,7 +200,7 @@ namespace ReportUnit.Parser
                 // check for any errors or messages
                 if (testResult.HasChildNodes)
                 {
-                    string errorMsg = "", descMsg = "";
+                    string errorMsg = "", descMsg = "", traceMsg = "";
                     foreach (XmlNode node in testResult.ChildNodes)
                     {
                         if (node.Name.Equals("Output", StringComparison.CurrentCultureIgnoreCase) && node.HasChildNodes)
@@ -219,10 +220,14 @@ namespace ReportUnit.Parser
                                     descMsg += "</p>";
                                     descMsg = descMsg == "<p class='description'>Description: </p>" ? "" : descMsg;
                                 }
+                                else if (msgNode.Name.Equals("DebugTrace", StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    traceMsg += "<pre>" + HttpUtility.HtmlEncode( msgNode.InnerText) + "</pre>";
+                                }
                             }
                         }
                     }
-                    tc.StatusMessage = descMsg + errorMsg;
+                    tc.StatusMessage = descMsg + errorMsg + traceMsg;
                 }
 
                 // get test details and fixture
